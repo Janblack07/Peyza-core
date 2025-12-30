@@ -1,0 +1,16 @@
+{
+  "id": "6ce9722b-91a8-42c8-827e-4755f63d48dc",
+  "template": "empty",
+  "options": {
+    "httpRequests": {
+      "ignoredUrls": [
+        "^/metrics$"
+      ]
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {}
+    }
+  }
+}

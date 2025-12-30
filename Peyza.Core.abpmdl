@@ -1,0 +1,63 @@
+{
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {},
+      "host": {}
+    }
+  },
+  "packages": {
+    "Peyza.Core.Domain": {
+      "path": "src/Peyza.Core.Domain/Peyza.Core.Domain.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.Application.Contracts": {
+      "path": "src/Peyza.Core.Application.Contracts/Peyza.Core.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.Application": {
+      "path": "src/Peyza.Core.Application/Peyza.Core.Application.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.EntityFrameworkCore": {
+      "path": "src/Peyza.Core.EntityFrameworkCore/Peyza.Core.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.HttpApi": {
+      "path": "src/Peyza.Core.HttpApi/Peyza.Core.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.HttpApi.Client": {
+      "path": "src/Peyza.Core.HttpApi.Client/Peyza.Core.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.TestBase": {
+      "path": "test/Peyza.Core.TestBase/Peyza.Core.TestBase.abppkg",
+      "folder": "test"
+    },
+    "Peyza.Core.EntityFrameworkCore.Tests": {
+      "path": "test/Peyza.Core.EntityFrameworkCore.Tests/Peyza.Core.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "Peyza.Core.Domain.Tests": {
+      "path": "test/Peyza.Core.Domain.Tests/Peyza.Core.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "Peyza.Core.Application.Tests": {
+      "path": "test/Peyza.Core.Application.Tests/Peyza.Core.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "Peyza.Core.Domain.Shared": {
+      "path": "src/Peyza.Core.Domain.Shared/Peyza.Core.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.Installer": {
+      "path": "src/Peyza.Core.Installer/Peyza.Core.Installer.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.HttpApi.Host": {
+      "path": "host/Peyza.Core.HttpApi.Host/Peyza.Core.HttpApi.Host.abppkg",
+      "folder": "host"
+    }
+  }
+}

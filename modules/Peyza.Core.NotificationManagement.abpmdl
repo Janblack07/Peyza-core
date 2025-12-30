@@ -1,0 +1,58 @@
+{
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "Peyza.Core.NotificationManagement.Domain": {
+      "path": "src/Peyza.Core.NotificationManagement.Domain/Peyza.Core.NotificationManagement.Domain.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.NotificationManagement.Application.Contracts": {
+      "path": "src/Peyza.Core.NotificationManagement.Application.Contracts/Peyza.Core.NotificationManagement.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.NotificationManagement.Application": {
+      "path": "src/Peyza.Core.NotificationManagement.Application/Peyza.Core.NotificationManagement.Application.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.NotificationManagement.EntityFrameworkCore": {
+      "path": "src/Peyza.Core.NotificationManagement.EntityFrameworkCore/Peyza.Core.NotificationManagement.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.NotificationManagement.HttpApi": {
+      "path": "src/Peyza.Core.NotificationManagement.HttpApi/Peyza.Core.NotificationManagement.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.NotificationManagement.HttpApi.Client": {
+      "path": "src/Peyza.Core.NotificationManagement.HttpApi.Client/Peyza.Core.NotificationManagement.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.NotificationManagement.TestBase": {
+      "path": "test/Peyza.Core.NotificationManagement.TestBase/Peyza.Core.NotificationManagement.TestBase.abppkg",
+      "folder": "test"
+    },
+    "Peyza.Core.NotificationManagement.EntityFrameworkCore.Tests": {
+      "path": "test/Peyza.Core.NotificationManagement.EntityFrameworkCore.Tests/Peyza.Core.NotificationManagement.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "Peyza.Core.NotificationManagement.Domain.Tests": {
+      "path": "test/Peyza.Core.NotificationManagement.Domain.Tests/Peyza.Core.NotificationManagement.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "Peyza.Core.NotificationManagement.Application.Tests": {
+      "path": "test/Peyza.Core.NotificationManagement.Application.Tests/Peyza.Core.NotificationManagement.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "Peyza.Core.NotificationManagement.Domain.Shared": {
+      "path": "src/Peyza.Core.NotificationManagement.Domain.Shared/Peyza.Core.NotificationManagement.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "Peyza.Core.NotificationManagement.Installer": {
+       "path": "src/Peyza.Core.NotificationManagement.Installer/Peyza.Core.NotificationManagement.Installer.abppkg",
+       "folder": "src"
+    }
+  }
+}

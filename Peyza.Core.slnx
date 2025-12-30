@@ -1,0 +1,40 @@
+<Solution>
+    <Folder Name="/host/">
+        <Project Path="host/Peyza.Core.HttpApi.Host/Peyza.Core.HttpApi.Host.csproj" />
+    </Folder>
+    <Folder Name="/modules/" />
+    <Folder Name="/modules/src/">
+        <Project Path="modules/src/Peyza.Core.NotificationManagement.Application.Contracts/Peyza.Core.NotificationManagement.Application.Contracts.csproj" />
+        <Project Path="modules/src/Peyza.Core.NotificationManagement.Application/Peyza.Core.NotificationManagement.Application.csproj" />
+        <Project Path="modules/src/Peyza.Core.NotificationManagement.Domain.Shared/Peyza.Core.NotificationManagement.Domain.Shared.csproj" />
+        <Project Path="modules/src/Peyza.Core.NotificationManagement.Domain/Peyza.Core.NotificationManagement.Domain.csproj" />
+        <Project Path="modules/src/Peyza.Core.NotificationManagement.EntityFrameworkCore/Peyza.Core.NotificationManagement.EntityFrameworkCore.csproj" />
+        <Project Path="modules/src/Peyza.Core.NotificationManagement.HttpApi.Client/Peyza.Core.NotificationManagement.HttpApi.Client.csproj" />
+        <Project Path="modules/src/Peyza.Core.NotificationManagement.HttpApi/Peyza.Core.NotificationManagement.HttpApi.csproj" />
+        <Project Path="modules/src/Peyza.Core.NotificationManagement.Installer/Peyza.Core.NotificationManagement.Installer.csproj" />
+    </Folder>
+    <Folder Name="/modules/test/">
+        <Project Path="modules/test/Peyza.Core.NotificationManagement.Application.Tests/Peyza.Core.NotificationManagement.Application.Tests.csproj" />
+        <Project Path="modules/test/Peyza.Core.NotificationManagement.Domain.Tests/Peyza.Core.NotificationManagement.Domain.Tests.csproj" />
+        <Project Path="modules/test/Peyza.Core.NotificationManagement.EntityFrameworkCore.Tests/Peyza.Core.NotificationManagement.EntityFrameworkCore.Tests.csproj" />
+        <Project Path="modules/test/Peyza.Core.NotificationManagement.TestBase/Peyza.Core.NotificationManagement.TestBase.csproj" />
+    </Folder>
+
+    <Folder Name="/src/">
+        <Project Path="src/Peyza.Core.Domain.Shared/Peyza.Core.Domain.Shared.csproj" />
+        <Project Path="src/Peyza.Core.Domain/Peyza.Core.Domain.csproj" />
+        <Project Path="src/Peyza.Core.Application.Contracts/Peyza.Core.Application.Contracts.csproj" />
+        <Project Path="src/Peyza.Core.Application/Peyza.Core.Application.csproj" />
+        <Project Path="src/Peyza.Core.EntityFrameworkCore/Peyza.Core.EntityFrameworkCore.csproj" />
+        <Project Path="src/Peyza.Core.HttpApi/Peyza.Core.HttpApi.csproj" />
+        <Project Path="src/Peyza.Core.HttpApi.Client/Peyza.Core.HttpApi.Client.csproj" />
+        <Project Path="src/Peyza.Core.Installer/Peyza.Core.Installer.csproj" />
+    </Folder>
+    
+    <Folder Name="/test/">
+        <Project Path="test/Peyza.Core.TestBase/Peyza.Core.TestBase.csproj" />
+        <Project Path="test/Peyza.Core.EntityFrameworkCore.Tests/Peyza.Core.EntityFrameworkCore.Tests.csproj" />
+        <Project Path="test/Peyza.Core.Domain.Tests/Peyza.Core.Domain.Tests.csproj" />
+        <Project Path="test/Peyza.Core.Application.Tests/Peyza.Core.Application.Tests.csproj" />
+    </Folder>
+</Solution>

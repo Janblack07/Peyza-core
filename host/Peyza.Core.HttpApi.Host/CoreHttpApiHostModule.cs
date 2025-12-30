@@ -1,0 +1,119 @@
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using Peyza.Core.NotificationManagement;
+using Peyza.Core.NotificationManagement.EntityFrameworkCore;
+using System;
+using System.Linq;
+using Volo.Abp;
+using Volo.Abp.AspNetCore.Mvc;
+using Volo.Abp.AspNetCore.Serilog;
+using Volo.Abp.Autofac;
+using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.EntityFrameworkCore.SqlServer;
+using Volo.Abp.Modularity;
+using Volo.Abp.MultiTenancy;
+using Volo.Abp.Swashbuckle;
+
+
+
+namespace Peyza.Core;
+
+[DependsOn(
+    typeof(AbpAutofacModule),
+    typeof(AbpAspNetCoreSerilogModule),
+    typeof(AbpSwashbuckleModule),
+    typeof(AbpAspNetCoreMvcModule),
+    typeof(NotificationManagementHttpApiModule),
+    typeof(NotificationManagementEntityFrameworkCoreModule),
+    typeof(AbpEntityFrameworkCoreSqlServerModule),
+    typeof(NotificationManagementApplicationModule)
+
+)]
+
+public class CoreHttpApiHostModule : AbpModule
+{
+    private const string DefaultCorsPolicyName = "Default";
+
+    public override void ConfigureServices(ServiceConfigurationContext context)
+    {
+        var configuration = context.Services.GetConfiguration();
+
+        ConfigureCors(context, configuration);
+        ConfigureSwagger(context, configuration);
+
+        Configure<AbpDbContextOptions>(options =>
+        {
+            options.UseSqlServer();
+        });
+        Configure<AbpMultiTenancyOptions>(options =>
+        {
+            options.IsEnabled = false; // ✅ Sin tenants
+        });
+    }
+
+    private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        var corsOrigins = configuration["App:CorsOrigins"];
+        context.Services.AddCors(options =>
+        {
+            options.AddPolicy(DefaultCorsPolicyName, builder =>
+            {
+                if (!corsOrigins.IsNullOrEmpty())
+                {
+                    builder
+                        .WithOrigins(
+                            corsOrigins
+                                .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                                .Select(o => o.RemovePostFix("/"))
+                                .ToArray()
+                        )
+                        .WithAbpExposedHeaders()
+                        .SetIsOriginAllowedToAllowWildcardSubdomains()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                }
+            });
+        });
+    }
+
+    private void ConfigureSwagger(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        context.Services.AddAbpSwaggerGen(
+            options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo {Title = "Peyza.Core.HttpApi.Host API", Version = "v1"});
+                options.DocInclusionPredicate((docName, description) => true);
+                options.CustomSchemaIds(type => type.FullName);
+            });
+    }
+
+    public override void OnApplicationInitialization(ApplicationInitializationContext context)
+    {
+        var app = context.GetApplicationBuilder();
+        var env = context.GetEnvironment();
+
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+
+        app.UseAbpRequestLocalization();
+        app.UseCors(DefaultCorsPolicyName);
+        app.MapAbpStaticAssets();
+        app.UseRouting();
+        app.UseAuthorization();
+        app.UseSwagger();
+        app.UseAbpSwaggerUI(options =>
+        {
+           options.SwaggerEndpoint("/swagger/v1/swagger.json", "Peyza.Core.HttpApi.Host API");
+        });
+        app.UseAuditing();
+        app.UseAbpSerilogEnrichers();
+        app.UseConfiguredEndpoints();
+    }
+}

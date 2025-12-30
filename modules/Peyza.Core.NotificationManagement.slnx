@@ -1,0 +1,23 @@
+<Solution>
+    <Configurations>
+        <Platform Name="Any CPU" />
+    </Configurations>
+
+    <Folder Name="/src/">
+        <Project Path="src/Peyza.Core.NotificationManagement.Domain.Shared/Peyza.Core.NotificationManagement.Domain.Shared.csproj" />
+        <Project Path="src/Peyza.Core.NotificationManagement.Domain/Peyza.Core.NotificationManagement.Domain.csproj" />
+        <Project Path="src/Peyza.Core.NotificationManagement.Application.Contracts/Peyza.Core.NotificationManagement.Application.Contracts.csproj" />
+        <Project Path="src/Peyza.Core.NotificationManagement.Application/Peyza.Core.NotificationManagement.Application.csproj" />
+        <Project Path="src/Peyza.Core.NotificationManagement.EntityFrameworkCore/Peyza.Core.NotificationManagement.EntityFrameworkCore.csproj" />
+        <Project Path="src/Peyza.Core.NotificationManagement.HttpApi/Peyza.Core.NotificationManagement.HttpApi.csproj" />
+        <Project Path="src/Peyza.Core.NotificationManagement.HttpApi.Client/Peyza.Core.NotificationManagement.HttpApi.Client.csproj" />
+        <Project Path="src/Peyza.Core.NotificationManagement.Installer/Peyza.Core.NotificationManagement.Installer.csproj" />
+    </Folder>
+    
+    <Folder Name="/test/">
+        <Project Path="test/Peyza.Core.NotificationManagement.TestBase/Peyza.Core.NotificationManagement.TestBase.csproj" />
+        <Project Path="test/Peyza.Core.NotificationManagement.EntityFrameworkCore.Tests/Peyza.Core.NotificationManagement.EntityFrameworkCore.Tests.csproj" />
+        <Project Path="test/Peyza.Core.NotificationManagement.Domain.Tests/Peyza.Core.NotificationManagement.Domain.Tests.csproj" />
+        <Project Path="test/Peyza.Core.NotificationManagement.Application.Tests/Peyza.Core.NotificationManagement.Application.Tests.csproj" />
+    </Folder>
+</Solution>
