@@ -1,10 +1,11 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
+using Peyza.Core.Infrastructure.Api;
 using Serilog;
 using Serilog.Events;
+using System;
+using System.Threading.Tasks;
 
 namespace Peyza.Core;
 
@@ -38,6 +39,8 @@ public class Program
                 options.Services.ReplaceConfiguration(builder.Configuration);
             });
             var app = builder.Build();
+            app.UseMiddleware<CorrelationIdMiddleware>();
+            app.UseMiddleware<AbpErrorToApiEnvelopeMiddleware>();
             await app.InitializeApplicationAsync();
             await app.RunAsync();
             return 0;            

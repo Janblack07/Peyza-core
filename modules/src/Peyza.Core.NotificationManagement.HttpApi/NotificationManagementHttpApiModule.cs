@@ -9,7 +9,9 @@ namespace Peyza.Core.NotificationManagement;
 
 [DependsOn(
     typeof(NotificationManagementApplicationContractsModule),
-    typeof(AbpAspNetCoreMvcModule))]
+    typeof(NotificationManagementApplicationModule),
+    typeof(AbpAspNetCoreMvcModule)
+    )]
 public class NotificationManagementHttpApiModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)

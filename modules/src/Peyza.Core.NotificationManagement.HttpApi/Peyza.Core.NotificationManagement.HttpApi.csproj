@@ -13,4 +13,8 @@
     <ProjectReference Include="..\Peyza.Core.NotificationManagement.Application.Contracts\Peyza.Core.NotificationManagement.Application.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Peyza.Core.NotificationManagement.Application\Peyza.Core.NotificationManagement.Application.csproj" />
+  </ItemGroup>
+
 </Project>

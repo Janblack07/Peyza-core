@@ -1,17 +1,22 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Peyza.Core.Infrastructure.Api;
 using Peyza.Core.NotificationManagement;
 using Peyza.Core.NotificationManagement.EntityFrameworkCore;
+using Peyza.Core.NotificationManagement.Workers;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
+using Volo.Abp.BackgroundWorkers;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.SqlServer;
 using Volo.Abp.Modularity;
@@ -52,6 +57,19 @@ public class CoreHttpApiHostModule : AbpModule
         Configure<AbpMultiTenancyOptions>(options =>
         {
             options.IsEnabled = false; // ✅ Sin tenants
+        });
+        context.Services.AddTransient<CorrelationIdMiddleware>();
+        context.Services.AddTransient<ApiResponseResultFilter>();
+        context.Services.AddTransient<ApiResponseExceptionFilter>();
+        context.Services.AddTransient<ApiExceptionEnvelopeMiddleware>();
+        context.Services.AddTransient<AbpErrorToApiEnvelopeMiddleware>();
+
+
+        context.Services.Configure<MvcOptions>(options =>
+        {
+            // Importante: ExceptionFilter primero, así no llega a devolver ProblemDetails
+            options.Filters.AddService<ApiResponseExceptionFilter>(order: int.MinValue);
+            options.Filters.AddService<ApiResponseResultFilter>(order: int.MaxValue);
         });
     }
 
@@ -107,6 +125,8 @@ public class CoreHttpApiHostModule : AbpModule
         app.MapAbpStaticAssets();
         app.UseRouting();
         app.UseAuthorization();
+        app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<ApiExceptionEnvelopeMiddleware>();
         app.UseSwagger();
         app.UseAbpSwaggerUI(options =>
         {
@@ -115,5 +135,12 @@ public class CoreHttpApiHostModule : AbpModule
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
+    }
+
+    public override async Task OnApplicationInitializationAsync(ApplicationInitializationContext context)
+    {
+        await context.AddBackgroundWorkerAsync<NotificationDispatchWorker>();
+
+        await base.OnApplicationInitializationAsync(context);
     }
 }

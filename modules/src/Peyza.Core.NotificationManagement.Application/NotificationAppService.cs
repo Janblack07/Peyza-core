@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Peyza.Core.NotificationManagement.Dtos;
+using Peyza.Core.NotificationManagement.Handlers;
+using System;
 using System.Threading.Tasks;
-using Peyza.Core.NotificationManagement.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 
@@ -9,14 +10,14 @@ namespace Peyza.Core.NotificationManagement;
 public class NotificationAppService : ApplicationService, INotificationAppService
 {
     private readonly IRepository<MessageTemplate, Guid> _templateRepo;
-    private readonly IRepository<NotificationMessage, Guid> _messageRepo;
+    private readonly SendNotificationHandler _sendHandler;
 
     public NotificationAppService(
         IRepository<MessageTemplate, Guid> templateRepo,
-        IRepository<NotificationMessage, Guid> messageRepo)
+        SendNotificationHandler sendHandler)
     {
         _templateRepo = templateRepo;
-        _messageRepo = messageRepo;
+        _sendHandler = sendHandler;
     }
 
     public async Task<MessageTemplateResponseDto> CreateTemplateAsync(MessageTemplateRequestDto input)
@@ -55,40 +56,9 @@ public class NotificationAppService : ApplicationService, INotificationAppServic
         return Map(template);
     }
 
-    public async Task<NotificationMessageResponseDto> SendAsync(NotificationMessageRequestDto input)
-    {
-        var id = GuidGenerator.Create();
+    public Task<NotificationMessageResponseDto> SendAsync(NotificationMessageRequestDto input)
+        => _sendHandler.HandleAsync(input);
 
-        // Constructor real de tu entidad:
-        // NotificationMessage(Guid id, NotificationChannel channel, string destination, string body, string? subject = null, Guid? debtorId=null, ...)
-        var msg = new NotificationMessage(
-            id,
-            input.Channel,
-            input.Destination,
-            input.Body,
-            input.Subject,
-            input.DebtorId,
-            input.DebtId,
-            input.PaymentOrderId,
-            input.TemplateId
-        );
-
-        // Si viene programado, aplicar regla de dominio
-        if (input.ScheduledAt.HasValue)
-        {
-            // Asumimos que input.ScheduledAt ya viene en UTC o que el sistema trabaja en UTC.
-            msg.Schedule(input.ScheduledAt.Value);
-        }
-
-        await _messageRepo.InsertAsync(msg, autoSave: true);
-
-        return new NotificationMessageResponseDto
-        {
-            Id = msg.Id,
-            Status = msg.Status,
-            CreatedAt = msg.CreatedAt
-        };
-    }
 
     private static MessageTemplateResponseDto Map(MessageTemplate t) => new()
     {
