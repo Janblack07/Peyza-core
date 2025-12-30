@@ -11,7 +11,6 @@ namespace Peyza.Core.NotificationManagement
         public string Name { get; private set; } = default!;
         public string? Code { get; private set; }
         public NotificationChannel Channel { get; private set; }
-        public string? Language { get; private set; }
         public string? SubjectTemplate { get; private set; }
         public string BodyTemplate { get; private set; } = default!;
         public TemplateStatus Status { get; private set; }
@@ -40,7 +39,6 @@ namespace Peyza.Core.NotificationManagement
 
             BodyTemplate = Check.NotNullOrWhiteSpace(bodyTemplate, nameof(bodyTemplate));
             SubjectTemplate = subjectTemplate is null ? null : Check.Length(subjectTemplate, nameof(subjectTemplate), maxLength: 200);
-            Language = language is null ? null : Check.Length(language, nameof(language), maxLength: 20);
             Code = code is null ? null : Check.Length(code, nameof(code), maxLength: 100);
         }
 

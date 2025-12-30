@@ -42,7 +42,6 @@ public class NotificationManagementDbContext : AbpDbContext<NotificationManageme
 
             b.Property(x => x.Name).HasMaxLength(100).IsRequired();
             b.Property(x => x.Code).HasMaxLength(100);
-            b.Property(x => x.Language).HasMaxLength(20);
             b.Property(x => x.SubjectTemplate).HasMaxLength(200);
             b.Property(x => x.BodyTemplate).IsRequired();
 

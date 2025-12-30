@@ -35,12 +35,11 @@ public class NotificationAppService : ApplicationService, INotificationAppServic
         );
 
         // Completar campos opcionales si vienen
-        if (input.SubjectTemplate is not null || input.Language is not null || input.Code is not null)
+        if (input.SubjectTemplate is not null  || input.Code is not null)
         {
             template.UpdateContent(
                 bodyTemplate: input.BodyTemplate,
                 subjectTemplate: input.SubjectTemplate,
-                language: input.Language,
                 code: input.Code
             );
         }
@@ -66,7 +65,6 @@ public class NotificationAppService : ApplicationService, INotificationAppServic
         Name = t.Name,
         Code = t.Code,
         Channel = t.Channel,
-        Language = t.Language,
         SubjectTemplate = t.SubjectTemplate,
         BodyTemplate = t.BodyTemplate,
         Status = t.Status

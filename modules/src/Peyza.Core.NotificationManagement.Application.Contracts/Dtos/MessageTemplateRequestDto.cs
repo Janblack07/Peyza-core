@@ -9,7 +9,6 @@ namespace Peyza.Core.NotificationManagement.Dtos
         public string Name { get; set; } = default!;
         public string? Code { get; set; }
         public NotificationChannel Channel { get; set; }
-        public string? Language { get; set; }
         public string? SubjectTemplate { get; set; }
         public string BodyTemplate { get; set; } = default!;
     }
