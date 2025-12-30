@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities;
 
@@ -34,6 +32,7 @@ namespace Peyza.Core.NotificationManagement
             NotificationChannel channel,
             string destination,
             string body,
+            DateTime createdAtUtc,
             string? subject = null,
             Guid? debtorId = null,
             Guid? debtId = null,
@@ -51,14 +50,14 @@ namespace Peyza.Core.NotificationManagement
             PaymentOrderId = paymentOrderId;
             TemplateId = templateId;
 
-            CreatedAt = DateTime.UtcNow;
+            CreatedAt = createdAtUtc;
             Status = NotificationStatus.Pending;
         }
 
         public void Schedule(DateTime sendAtUtc)
         {
             if (Status != NotificationStatus.Pending)
-                throw new BusinessException("NOTIFICATION_INVALID_STATE");
+                throw new BusinessException("NOTIFICATION_INVALID_STATE_TO_SCHEDULE");
 
             ScheduledAt = sendAtUtc;
             Status = NotificationStatus.Scheduled;
@@ -67,31 +66,56 @@ namespace Peyza.Core.NotificationManagement
         public void MarkAsSending()
         {
             if (Status is not (NotificationStatus.Pending or NotificationStatus.Scheduled))
-                throw new BusinessException("NOTIFICATION_INVALID_STATE");
+                throw new BusinessException("NOTIFICATION_INVALID_STATE_TO_SENDING");
 
             Status = NotificationStatus.Sending;
         }
 
-        public void MarkAsSent(string providerMessageId)
+        public void MarkAsSent(string providerMessageId, DateTime sentAtUtc)
         {
+            if (Status != NotificationStatus.Sending)
+                throw new BusinessException("NOTIFICATION_INVALID_STATE_TO_SENT");
+
             ProviderMessageId = Check.Length(providerMessageId, nameof(providerMessageId), maxLength: 200);
-            SentAt = DateTime.UtcNow;
+            SentAt = sentAtUtc;
             Status = NotificationStatus.Sent;
             ErrorCode = null;
         }
 
         public void MarkAsFailed(string errorCode)
         {
+            if (Status != NotificationStatus.Sending)
+                throw new BusinessException("NOTIFICATION_INVALID_STATE_TO_FAILED");
+
             ErrorCode = Check.Length(errorCode, nameof(errorCode), maxLength: 50);
             Status = NotificationStatus.Failed;
         }
 
         public void Cancel()
         {
-            if (Status == NotificationStatus.Sent)
+            if (Status is NotificationStatus.Sent)
                 throw new BusinessException("NOTIFICATION_ALREADY_SENT");
 
+            if (Status is NotificationStatus.Canceled)
+                return; // idempotente
+
+            if (Status is not (NotificationStatus.Pending or NotificationStatus.Scheduled))
+                throw new BusinessException("NOTIFICATION_INVALID_STATE_TO_CANCEL");
+
             Status = NotificationStatus.Canceled;
+        }
+
+        public void Retry(DateTime scheduledAtUtc)
+        {
+            if (Status != NotificationStatus.Failed)
+                throw new BusinessException("NOTIFICATION_RETRY_ONLY_FAILED");
+
+            ErrorCode = null;
+            ProviderMessageId = null;
+            SentAt = null;
+
+            ScheduledAt = scheduledAtUtc;
+            Status = NotificationStatus.Scheduled;
         }
     }
 }

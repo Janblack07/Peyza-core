@@ -1,7 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Peyza.Core.NotificationManagement.Dtos;
+using System;
+using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Mvc;
 
 namespace Peyza.Core.NotificationManagement;
@@ -16,9 +17,13 @@ public class NotificationController : AbpController
         _app = app;
     }
 
-    [HttpPost("templates")]
-    public Task<MessageTemplateResponseDto> CreateTemplate([FromBody] MessageTemplateRequestDto input)
-     => _app.CreateTemplateAsync(input);
+    [HttpGet("templates")]
+    public Task<PagedResultDto<MessageTemplateResponseDto>> GetTemplatesAsync([FromQuery] GetTemplatesInputDto input)
+    => _app.GetTemplatesAsync(input);
+
+    [HttpGet("notifications")]
+    public Task<PagedResultDto<NotificationMessageSummaryDto>> GetNotificationsAsync([FromQuery] GetNotificationsInputDto input)
+        => _app.GetNotificationsAsync(input);
 
     [HttpGet("templates/{id:guid}")]
     public Task<MessageTemplateResponseDto> GetTemplate(Guid id)
@@ -27,4 +32,21 @@ public class NotificationController : AbpController
     [HttpPost("notifications/send")]
     public Task<NotificationMessageResponseDto> Send([FromBody] NotificationMessageRequestDto input)
         => _app.SendAsync(input);
+
+    [HttpGet("notifications/{id:guid}")]
+    public Task<NotificationMessageDetailsDto> GetNotificationAsync(Guid id)
+    => _app.GetNotificationAsync(id);
+
+
+    [HttpPost("templates/{id:guid}/activate")]
+    public Task<MessageTemplateResponseDto> ActivateTemplateAsync(Guid id)
+    => _app.ActivateTemplateAsync(id);
+
+    [HttpPost("templates/{id:guid}/deprecate")]
+    public Task<MessageTemplateResponseDto> DeprecateTemplateAsync(Guid id)
+        => _app.DeprecateTemplateAsync(id);
+
+    [HttpPost("notifications/{id:guid}/retry")]
+    public Task<NotificationMessageDetailsDto> RetryAsync(Guid id)
+    => _app.RetryNotificationAsync(id);
 }

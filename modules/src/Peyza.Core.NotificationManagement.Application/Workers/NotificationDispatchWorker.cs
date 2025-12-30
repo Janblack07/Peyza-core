@@ -1,97 +1,129 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Peyza.Core.NotificationManagement.Providers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Volo.Abp;
 using Volo.Abp.BackgroundWorkers;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Linq;
 using Volo.Abp.Threading;
 using Volo.Abp.Timing;
 using Volo.Abp.Uow;
 
-namespace Peyza.Core.NotificationManagement.Workers;
+namespace Peyza.Core.NotificationManagement;
 
 public class NotificationDispatchWorker : AsyncPeriodicBackgroundWorkerBase
 {
-    private readonly IRepository<NotificationMessage, Guid> _messageRepo;
-    private readonly INotificationProviderDispatcher _dispatcher;
-    private readonly IClock _clock;
+    private const int BatchSize = 20;
+
     private readonly IUnitOfWorkManager _uowManager;
-    private readonly NotificationDispatcherOptions _options;
-    private readonly ILogger<NotificationDispatchWorker> _logger;
+    private readonly IClock _clock;
+    private readonly IAsyncQueryableExecuter _asyncExecuter;
 
     public NotificationDispatchWorker(
         AbpAsyncTimer timer,
         IServiceScopeFactory serviceScopeFactory,
-        IRepository<NotificationMessage, Guid> messageRepo,
-        INotificationProviderDispatcher dispatcher,
-        IClock clock,
         IUnitOfWorkManager uowManager,
-        IOptions<NotificationDispatcherOptions> options,
-        ILogger<NotificationDispatchWorker> logger)
+        IClock clock,
+        IAsyncQueryableExecuter asyncExecuter)
         : base(timer, serviceScopeFactory)
     {
-        _messageRepo = messageRepo;
-        _dispatcher = dispatcher;
-        _clock = clock;
         _uowManager = uowManager;
-        _options = options.Value;
-        _logger = logger;
+        _clock = clock;
+        _asyncExecuter = asyncExecuter;
 
-        Timer.Period = _options.PeriodSeconds * 1000;
+        Timer.Period = 10_000; // cada 10s
     }
 
     protected override async Task DoWorkAsync(PeriodicBackgroundWorkerContext workerContext)
     {
         var now = _clock.Now;
 
-        using var uow = _uowManager.Begin(requiresNew: true, isTransactional: true);
+        using var scope = ServiceScopeFactory.CreateScope();
 
-        var queryable = await _messageRepo.GetQueryableAsync();
+        var messageRepo = scope.ServiceProvider.GetRequiredService<IRepository<NotificationMessage, Guid>>();
+        var emailProvider = scope.ServiceProvider.GetRequiredService<IEmailProvider>();
+        var smsProvider = scope.ServiceProvider.GetRequiredService<ISmsProvider>();
 
-        var batch = queryable
-            .Where(x => x.Status == NotificationStatus.Scheduled && x.ScheduledAt <= now)
-            .OrderBy(x => x.ScheduledAt)
-            .Take(_options.BatchSize)
-            .ToList();
+        // 1) CLAIM (Scheduled y due) -> Sending (UoW corta)
+        Guid[] claimedIds;
 
-        if (batch.Count == 0)
+        using (var uow = _uowManager.Begin(requiresNew: true, isTransactional: true))
         {
+            var q = await messageRepo.GetQueryableAsync();
+
+            var dueQuery = q
+                .Where(x =>
+                    x.Status == NotificationStatus.Scheduled &&
+                    x.ScheduledAt != null &&
+                    x.ScheduledAt <= now)
+                .OrderBy(x => x.ScheduledAt)
+                .Take(BatchSize);
+
+            var dueList = await _asyncExecuter.ToListAsync(dueQuery);
+
+            foreach (var msg in dueList)
+            {
+                // Invariante: solo Pending/Scheduled -> Sending
+                msg.MarkAsSending();
+                await messageRepo.UpdateAsync(msg, autoSave: true);
+            }
+
+            claimedIds = dueList.Select(x => x.Id).ToArray();
+
             await uow.CompleteAsync();
-            return;
         }
 
-        foreach (var msg in batch)
+        if (claimedIds.Length == 0)
+            return;
+
+        // 2) SEND (cada mensaje con su UoW)
+        foreach (var id in claimedIds)
         {
+            using var uow = _uowManager.Begin(requiresNew: true, isTransactional: true);
+
+            var msg = await messageRepo.GetAsync(id);
+
+            // Idempotencia: si cambió estado, skip
+            if (msg.Status != NotificationStatus.Sending)
+            {
+                await uow.CompleteAsync();
+                continue;
+            }
+
             try
             {
-                msg.MarkAsSending();
-                await _messageRepo.UpdateAsync(msg, autoSave: true);
+                var providerId = await SendViaProviderAsync(msg, emailProvider, smsProvider);
 
-                var result = await _dispatcher.SendAsync(msg, workerContext.CancellationToken);
+                msg.MarkAsSent(providerId, _clock.Now);
+                await messageRepo.UpdateAsync(msg, autoSave: true);
 
-                if (result.Success && !string.IsNullOrWhiteSpace(result.ProviderMessageId))
-                    msg.MarkAsSent(result.ProviderMessageId);
-                else
-                    msg.MarkAsFailed(result.ErrorCode ?? "PROVIDER_FAILED");
-
-                await _messageRepo.UpdateAsync(msg, autoSave: true);
+                Logger.LogInformation("Notification sent. Id={Id} ProviderId={ProviderId}", msg.Id, providerId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "DispatchWorker error. MessageId={MessageId}", msg.Id);
+                msg.MarkAsFailed("PROVIDER_SEND_FAILED");
+                await messageRepo.UpdateAsync(msg, autoSave: true);
 
-                try
-                {
-                    msg.MarkAsFailed("WORKER_EXCEPTION");
-                    await _messageRepo.UpdateAsync(msg, autoSave: true);
-                }
-                catch { }
+                Logger.LogWarning(ex, "Notification failed. Id={Id}", msg.Id);
             }
-        }
 
-        await uow.CompleteAsync();
+            await uow.CompleteAsync();
+        }
+    }
+
+    private static Task<string> SendViaProviderAsync(
+        NotificationMessage msg,
+        IEmailProvider emailProvider,
+        ISmsProvider smsProvider)
+    {
+        return msg.Channel switch
+        {
+            NotificationChannel.Email => emailProvider.SendAsync(msg),
+            NotificationChannel.SMS => smsProvider.SendAsync(msg),
+            _ => throw new BusinessException("CHANNEL_NOT_SUPPORTED")
+        };
     }
 }

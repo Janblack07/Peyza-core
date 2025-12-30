@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Autofac.Core;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,8 @@ using Microsoft.OpenApi.Models;
 using Peyza.Core.Infrastructure.Api;
 using Peyza.Core.NotificationManagement;
 using Peyza.Core.NotificationManagement.EntityFrameworkCore;
+using Peyza.Core.NotificationManagement.Providers;
+using Peyza.Core.NotificationManagement.Providers.SendGrid;
 using Peyza.Core.NotificationManagement.Workers;
 using System;
 using System.Linq;
@@ -63,6 +66,8 @@ public class CoreHttpApiHostModule : AbpModule
         context.Services.AddTransient<ApiResponseExceptionFilter>();
         context.Services.AddTransient<ApiExceptionEnvelopeMiddleware>();
         context.Services.AddTransient<AbpErrorToApiEnvelopeMiddleware>();
+        context.Services.AddTransient<IEmailProvider, SendGridAdapter>();
+        context.Services.AddTransient<ISmsProvider, SendGridAdapter>();
 
 
         context.Services.Configure<MvcOptions>(options =>
